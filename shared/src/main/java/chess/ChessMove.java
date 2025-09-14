@@ -48,4 +48,24 @@ public class ChessMove {
     public String toString() {
         return String.format("%s%s", startPosition, endPosition);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ChessMove that = (ChessMove) o;
+        return startPosition.equals(that.startPosition) &&
+            endPosition.equals(that.endPosition) &&
+            ((promotionPiece == null && that.promotionPiece == null) || 
+            (promotionPiece != null && promotionPiece.equals(that.promotionPiece)));
+    }
+
+    @Override
+    public int hashCode() {
+        // Generate a hash code by simply adding the hash codes of the fields
+        int result = startPosition.hashCode();
+        result += endPosition.hashCode();
+        result += (promotionPiece != null ? promotionPiece.hashCode() : 0);
+        return result;
+    }
 }
