@@ -7,7 +7,8 @@ package chess;
  * signature of the existing methods.
  */
 public class ChessBoard {
-private ChessPiece[][] board = new ChessPiece[8][8];
+
+    ChessPiece[][] board = new ChessPiece[8][8];
     public ChessBoard() {
         
     }
@@ -19,6 +20,7 @@ private ChessPiece[][] board = new ChessPiece[8][8];
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition pos, ChessPiece piece) {
+
         board[pos.getRow()-1][pos.getColumn()-1] = piece;
     }
 
@@ -30,6 +32,7 @@ private ChessPiece[][] board = new ChessPiece[8][8];
      * position
      */
     public ChessPiece getPiece(ChessPosition pos) {
+
         return board[pos.getRow()-1][pos.getColumn()-1];
     }
 
