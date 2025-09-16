@@ -21,7 +21,6 @@ public class ChessPosition {
      * 1 codes for the bottom row
      */
     public int getRow() {
-
         return row;
     }
 
