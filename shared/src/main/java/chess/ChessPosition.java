@@ -51,8 +51,9 @@ public class ChessPosition {
 
     @Override
     public int hashCode() {
-        // Generate a hash code by simply adding row and column
-        return row + column;
+        int result = row;
+        result = 31 * result + column;
+        return result;
     }
     
 }
