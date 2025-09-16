@@ -75,7 +75,7 @@ public class ChessBoard {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (o == null || getClass() != o.getClass()) return false; //test that o is in fact a chess board
         ChessBoard that = (ChessBoard) o;
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
