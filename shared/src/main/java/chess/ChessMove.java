@@ -62,7 +62,7 @@ public class ChessMove {
 
     @Override
     public int hashCode() {
-        // Generate a hash code by simply adding the hash codes of the fields
+        // Generate a hash code by adding the hash codes of the fields
         int result = startPosition.hashCode();
         result += endPosition.hashCode();
         result += (promotionPiece != null ? promotionPiece.hashCode() : 0);

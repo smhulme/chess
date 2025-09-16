@@ -2,8 +2,7 @@ package chess;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
-import java.util.ArrayList; // Add this line
+
 
 /**
  * Represents a single chess piece
@@ -145,6 +144,62 @@ public class ChessPiece {
                     }
                 }
                 
+            }
+        }
+
+        if (piece.getPieceType() == PieceType.KING) {
+            int [][] directions = {
+                    {1, 1},
+                    {1, -1},
+                    {-1, 1},
+                    {-1, -1},
+                    {1,0},
+                    {0,1},
+                    {-1,0},
+                    {0,-1}
+            };
+
+            for (int[] dir : directions) {
+                int row = myPosition.getRow() + dir[0];
+                int col = myPosition.getColumn() + dir[1];
+                if (row < 1 || row > 8 || col < 1 || col > 8) {
+                    break;
+                } else {
+                    ChessPosition newPosition = new ChessPosition(row, col);
+                    ChessPiece occupyingPiece = board.getPiece(newPosition);
+                    if (occupyingPiece == null || occupyingPiece.getTeamColor() != this.getTeamColor()) {
+                        moves.add(new ChessMove(myPosition, newPosition, null));
+                    }
+                }
+            }
+        }
+
+        if (piece.getPieceType() == PieceType.PAWN) {
+            int [][] directions = {
+                    {1, 0},
+                    {1, 1},
+                    {-1, 1},
+                    {2, 0}
+            };
+
+            for (int[] dir : directions) {
+                int row = myPosition.getRow() + dir[0];
+                int col = myPosition.getColumn() + dir[1];
+                if (row < 1 || row > 8 || col < 1 || col > 8) {
+                    break;
+                } else {
+                    ChessPosition newPosition = new ChessPosition(row, col);
+                    ChessPiece occupyingPiece = board.getPiece(newPosition);
+                    if (col == 1 && occupyingPiece == null) {
+                        break;
+                    } else if (row == 2 && myPosition.getRow() != 2) {
+                        break;
+                    } else if (occupyingPiece == null || occupyingPiece.getTeamColor() != this.getTeamColor()) {
+                        moves.add(new ChessMove(myPosition, newPosition, null));
+                    }
+
+
+                }
             }
         }
         return moves;
