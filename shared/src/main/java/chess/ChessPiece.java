@@ -232,7 +232,7 @@ public class ChessPiece {
             
             
             
-            
+            // failed pawn implimentation
             // for (int[] dir : directions) {
             //     int row = myPosition.getRow() + dir[0];
             //     int col = myPosition.getColumn() + dir[1];
@@ -261,7 +261,7 @@ public class ChessPiece {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ChessPiece that = (ChessPiece) o;
-        return type == that.type && pieceColor == that.pieceColor;
+        return this.type == that.type && this.pieceColor == that.pieceColor;
     }
 
     @Override
