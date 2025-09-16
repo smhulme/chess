@@ -255,4 +255,19 @@ public class ChessPiece {
         }
         return moves;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ChessPiece that = (ChessPiece) o;
+        return type == that.type && pieceColor == that.pieceColor;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = type != null ? type.hashCode() : 0;
+        result = 31 * result + (pieceColor != null ? pieceColor.hashCode() : 0);
+        return result;
+    }
 }
