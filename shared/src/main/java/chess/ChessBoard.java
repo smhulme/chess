@@ -70,6 +70,19 @@ public class ChessBoard {
         board[7][7] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK);
     }
 
+    public ChessBoard copy() {
+        ChessBoard testBoard = new ChessBoard();
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                ChessPiece piece = this.board[row][col];
+                if (piece != null) {
+                    testBoard.board[row][col] = new ChessPiece(piece.getTeamColor(), piece.getPieceType());
+                }
+            }
+        }
+        return testBoard;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
