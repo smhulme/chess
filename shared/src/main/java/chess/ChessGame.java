@@ -86,6 +86,12 @@ public class ChessGame {
         board.addPiece(move.getStartPosition(), null);
         board.addPiece(move.getEndPosition(), piece);        
         
+        //add pawn promotion
+        if (piece.getPieceType() == PieceType.PAWN && move.getPromotionPiece() != null) {
+            board.addPiece(move.getEndPosition(), new ChessPiece(piece.getTeamColor(), move.getPromotionPiece()));
+        }
+
+
         turn = (turn == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
     }
 
