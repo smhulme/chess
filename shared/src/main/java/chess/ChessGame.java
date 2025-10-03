@@ -202,4 +202,20 @@ public class ChessGame {
     public ChessBoard getBoard() {
         return board;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ChessGame that = (ChessGame) o;
+        return (this.turn == that.turn) &&
+               (this.board != null ? this.board.equals(that.board) : that.board == null);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (board != null) ? board.hashCode() : 0;
+        result = 31 * result + (turn != null ? turn.hashCode() : 0);
+        return result;
+    }
 }
