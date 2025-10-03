@@ -82,7 +82,7 @@ public class ChessGame {
         if (piece == null) throw new InvalidMoveException();
         if (piece.getTeamColor() != turn) throw new InvalidMoveException();
         Collection<ChessMove> validMoves = validMoves(move.getStartPosition());
-        if (!validMoves.contains(move.getEndPosition())) throw new InvalidMoveException();
+        if (!validMoves.contains(move)) throw new InvalidMoveException();
         board.addPiece(move.getStartPosition(), null);
         board.addPiece(move.getEndPosition(), piece);        
         
