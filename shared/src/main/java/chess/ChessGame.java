@@ -91,6 +91,19 @@ public class ChessGame {
             board.addPiece(move.getEndPosition(), new ChessPiece(piece.getTeamColor(), move.getPromotionPiece()));
         }
 
+        // if (piece.getPieceType() == PieceType.KING) {
+        //     if (piece.getTeamColor() == TeamColor.WHITE) board.whiteKingMoved = true;
+        //     else board.blackKingMoved = true;
+        // }
+        // if (piece.getPieceType() == PieceType.ROOK) {
+        //     if (piece.getTeamColor() == TeamColor.WHITE) {
+        //         if (move.getStartPosition().getColumn() == 1) board.whiteRookAMoved = true;
+        //         if (move.getStartPosition().getColumn() == 8) board.whiteRookHMoved = true;
+        //     } else {
+        //         if (move.getStartPosition().getColumn() == 1) board.blackRookAMoved = true;
+        //         if (move.getStartPosition().getColumn() == 8) board.blackRookHMoved = true;
+        //     }
+        // }
 
         turn = (turn == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
     }

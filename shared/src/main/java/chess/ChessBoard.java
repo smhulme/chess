@@ -9,6 +9,13 @@ package chess;
 public class ChessBoard {
 
     ChessPiece[][] board = new ChessPiece[8][8];
+    // public boolean whiteKingMoved = false;
+    // public boolean blackKingMoved = false;
+    // public boolean whiteRookAMoved = false;
+    // public boolean whiteRookHMoved = false;
+    // public boolean blackRookAMoved = false;
+    // public boolean blackRookHMoved = false;
+
     public ChessBoard() {
         
     }
