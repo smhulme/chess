@@ -2,8 +2,8 @@ package server;
 
 import com.google.gson.Gson;
 import io.javalin.*;
+import io.javalin.http.Context;
 
-import javax.naming.Context;
 import java.util.Map;
 
 public class Server {
