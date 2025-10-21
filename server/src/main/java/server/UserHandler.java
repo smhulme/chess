@@ -8,6 +8,7 @@ import com.google.gson.JsonSyntaxException;
 
 import dataaccess.BadRequestException;
 import dataaccess.UnauthorizedException;
+import dataaccess.ForbiddenException;
 
 
 
@@ -25,12 +26,15 @@ public class UserHandler {
 
             if (userData.username() == null || userData.password() == null) {
                 ctx.status(400).json(new ErrorResponse("Error: No username or password given"));
+                return;
             }
 
             RegisterResponse registerResponse = userService.register(userData);
             ctx.status(200).json(registerResponse);
+        } catch (ForbiddenException e) {
+            ctx.status(403).json(new ErrorResponse("Error: already registered"));
         } catch (BadRequestException e) {
-            ctx.status(403).json(new ErrorResponse("Error: already taken"));
+            ctx.status(400).json(new ErrorResponse("Error: Bad Request"));
         } catch (JsonSyntaxException e) {
             ctx.status(400).json(new ErrorResponse("Malformed JSON"));
         }

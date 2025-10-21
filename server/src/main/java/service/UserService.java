@@ -5,6 +5,7 @@ import java.util.UUID;
 import dataaccess.AuthAccess;
 import dataaccess.BadRequestException;
 import dataaccess.DataAccessException;
+import dataaccess.ForbiddenException;
 import dataaccess.UnauthorizedException;
 import dataaccess.UserAccess;
 import datamodel.RegisterResponse;
@@ -19,10 +20,21 @@ public class UserService {
         this.authAccess = authAccess;
     }
 
-    public RegisterResponse register(UserData user) throws BadRequestException {
+    public RegisterResponse register(UserData user) throws BadRequestException, ForbiddenException {
+        // Input validation
+        if (user == null ||
+            user.username() == null || user.username().isEmpty() ||
+            user.password() == null || user.password().isEmpty() ||
+            user.email() == null || user.email().isEmpty()) {
+            throw new BadRequestException("Missing required registration fields");
+        }
+
         try {
             userAccess.createUser(user);
         } catch (DataAccessException e) {
+            if (e.getMessage().contains("already exists")) { // Adjust this check to your error message
+                throw new ForbiddenException("User already registered");
+            }
             throw new BadRequestException(e.getMessage());
         }
         String authToken = UUID.randomUUID().toString();
