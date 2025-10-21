@@ -122,6 +122,21 @@ public class ChessGame {
 
 
     /**
+     * Checks if a specific enemy piece attacks the target position.
+     */
+    private boolean pieceAttacksPosition(ChessPiece enemyPiece, ChessPosition enemyPos, ChessPosition targetPosition) {
+        Collection<ChessMove> moves = enemyPiece.pieceMoves(board, enemyPos);
+        if (moves != null) {
+            for (ChessMove move : moves) {
+                if (move.getEndPosition().equals(targetPosition)) {
+                    return true; // Position is attacked by this piece
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
      * Determines if the given team is in check
      *
      * @param teamColor which team to check for check
@@ -130,7 +145,7 @@ public class ChessGame {
     public boolean isInCheck(TeamColor teamColor) {
         ChessPosition kingPosition = findKingPosition(teamColor);
         if (kingPosition == null) {
-            return false; // King not on board, cannot be in check
+            return false;
         }
 
         TeamColor enemyColor = (teamColor == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
@@ -143,19 +158,13 @@ public class ChessGame {
 
                 // If an enemy piece exists, check if it attacks the king
                 if (enemyPiece != null && enemyPiece.getTeamColor() == enemyColor) {
-                    Collection<ChessMove> moves = enemyPiece.pieceMoves(board, enemyPos);
-                    if (moves != null) {
-                        for (ChessMove move : moves) {
-                            if (move.getEndPosition().equals(kingPosition)) {
-                                return true; // An enemy piece can attack the king
-                            }
-                        }
+                    if (pieceAttacksPosition(enemyPiece, enemyPos, kingPosition)) {
+                        return true;
                     }
                 }
             }
         }
-
-        return false; // No enemy piece threatens the king
+        return false;
     }
 
     /**
@@ -244,3 +253,4 @@ public class ChessGame {
         return result;
     }
 }
+
