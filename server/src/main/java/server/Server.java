@@ -1,51 +1,71 @@
 package server;
 
-import com.google.gson.Gson;
-
-import dataaccess.UserAccess;
-import dataaccess.MemoryUserAccess;
-import datamodel.*;
-import io.javalin.*;
+import dataaccess.*;
+import io.javalin.Javalin;
 import io.javalin.http.Context;
 import service.*;
 
-import java.util.Map;
-
 public class Server {
 
-    private final Javalin server;
-    UserAccess dataAccess = new MemoryUserAccess();
-    private final UserService userService = new UserService(dataAccess);
+    UserAccess userAccess;
+    AuthAccess authAccess;
+    GameAccess gameAccess;
+    UserService userService;
+    GameService gameService;
+    UserHandler userHandler;
+    GameHandler gameHandler;
+
+    private Javalin server;
+
     public Server() {
 
-        server = Javalin.create(config -> config.staticFiles.add("web"));
+        userAccess = new MemoryUserAccess();
+        authAccess = new MemoryAuthAccess();
+        gameAccess = new MemoryGameAccess();
+        userService = new UserService(userAccess, authAccess);
+        gameService = new GameService(gameAccess, authAccess);
+        userHandler = new UserHandler(userService);
+        gameHandler = new GameHandler(gameService);
 
-        server.delete("db", ctx -> ctx.result("{}"));
-        server.post("user", this::register);
     }
 
-    private void register(Context ctx) {
-        var serializer = new Gson();
-        try {
-            String reqJson = ctx.body();
-            var user = serializer.fromJson(reqJson, UserData.class);
-            
-            var registrationResponse = userService.register(user);
-            
-            ctx.result(serializer.toJson(registrationResponse));
-        } catch (Exception e) {
-            // Handle different types of registration errors
-            ctx.status(400); // Bad Request
-            ctx.result(serializer.toJson(Map.of("message", "Registration failed: " + e.getMessage())));
-        }
-    }
+    public int run(int desiredPort) {
+        server = Javalin.create(config -> {
+            config.staticFiles.add("web");
+        }).start(desiredPort);
 
-    public int run(int desiredPort) throws Exception {
-        server.start(desiredPort);
+        server.delete("/db", this::clear);
+        server.post("/user", userHandler::register);
+        server.post("/session", userHandler::login);
+        server.delete("/session", userHandler::logout);
+
+        server.get("/game", gameHandler::listGames);
+        server.post("/game", gameHandler::createGame);
+        server.put("/game", gameHandler::joinGame);
+
+        server.exception(UnauthorizedException.class, (e, ctx) -> ctx.status(401).json(new ErrorResponse("Error: unauthorized")));
+        server.exception(BadRequestException.class, (e, ctx) -> ctx.status(400).json(new ErrorResponse("Error: bad request")));
+        server.exception(Exception.class, (e, ctx) -> ctx.status(500).json(new ErrorResponse("Internal server error")));
+
         return server.port();
     }
 
     public void stop() {
-        server.stop();
+        if (server != null) {
+            server.stop();
+        }
+    }
+
+    private void clear(Context ctx) {
+        userService.clear();
+        gameService.clear();
+        ctx.status(200).json("{}");
+    }
+
+    private static class ErrorResponse {
+        public final String message;
+        public ErrorResponse(String message) { 
+            this.message = message; 
+        }
     }
 }
