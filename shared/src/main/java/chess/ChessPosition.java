@@ -40,9 +40,13 @@ public class ChessPosition {
     @Override
     public boolean equals(Object o) {
         // Check if the object references are the same
-        if (this == o) return true;
+        if (this == o) {
+            return true;
+        }
         // Check if the other object is null or not the same class
-        if (o == null || getClass() != o.getClass()) return false;
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         // Cast the other object to ChessPosition
         ChessPosition that = (ChessPosition) o;
         // Compare row and column for equality
@@ -55,5 +59,5 @@ public class ChessPosition {
         result = 31 * result + column;
         return result;
     }
-    
+
 }

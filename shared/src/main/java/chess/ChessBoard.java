@@ -9,15 +9,9 @@ package chess;
 public class ChessBoard {
 
     ChessPiece[][] board = new ChessPiece[8][8];
-    // public boolean whiteKingMoved = false;
-    // public boolean blackKingMoved = false;
-    // public boolean whiteRookAMoved = false;
-    // public boolean whiteRookHMoved = false;
-    // public boolean blackRookAMoved = false;
-    // public boolean blackRookHMoved = false;
 
     public ChessBoard() {
-        
+
     }
 
     /**
@@ -27,7 +21,6 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition pos, ChessPiece piece) {
-
         board[pos.getRow()-1][pos.getColumn()-1] = piece;
     }
 
@@ -39,7 +32,6 @@ public class ChessBoard {
      * position
      */
     public ChessPiece getPiece(ChessPosition pos) {
-
         return board[pos.getRow()-1][pos.getColumn()-1];
     }
 
@@ -63,8 +55,8 @@ public class ChessBoard {
         board[0][6] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT);
         board[0][7] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK);
         for (int col = 0; col <= 7; col++) {
-            board[1][col] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);;
-            board[6][col] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);;
+            board[1][col] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
+            board[6][col] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
         }
 
         board[7][0] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK);
@@ -92,16 +84,26 @@ public class ChessBoard {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         ChessBoard that = (ChessBoard) o;
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
                 ChessPiece a = this.board[row][col];
                 ChessPiece b = that.board[row][col];
-                if (a == null && b == null) continue;
-                if (a == null || b == null) return false;
-                if (!a.equals(b)) return false;
+                if (a == null && b == null) {
+                    continue;
+                }
+                if (a == null || b == null) {
+                    return false;
+                }
+                if (!a.equals(b)) {
+                    return false;
+                }
             }
         }
         return true;
