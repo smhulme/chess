@@ -120,35 +120,6 @@ public class ChessGame {
         return null; // Should not happen in a valid game
     }
 
-    // --- NEW HELPER METHOD ---
-    /**
-     * Checks if a given position is attacked by any piece of the enemy team.
-     * @param position The position to check.
-     * @param enemyColor The color of the attacking team.
-     * @return true if the position is under attack, false otherwise.
-     */
-    private boolean isAttackedByEnemy(ChessPosition position, TeamColor enemyColor) {
-        for (int i = 1; i <= 8; i++) {
-            for (int j = 1; j <= 8; j++) {
-                ChessPosition enemyPos = new ChessPosition(i, j);
-                ChessPiece enemyPiece = board.getPiece(enemyPos);
-                if (enemyPiece != null && enemyPiece.getTeamColor() == enemyColor) {
-                    Collection<ChessMove> moves = enemyPiece.pieceMoves(board, enemyPos);
-                    // Check if any move ends on the target position
-                    if (moves != null) {
-                        for (ChessMove move : moves) {
-                            if (move.getEndPosition().equals(position)) {
-                                return true; // Position is attacked
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return false; // Position is safe
-    }
-    // --- END NEW HELPER METHOD ---
-
 
     /**
      * Determines if the given team is in check
@@ -163,16 +134,36 @@ public class ChessGame {
         }
 
         TeamColor enemyColor = (teamColor == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
-        // Call the new helper method
-        return isAttackedByEnemy(kingPosition, enemyColor); // <-- CHANGED
+
+        // Iterate through all board positions to find enemy pieces
+        for (int i = 1; i <= 8; i++) {
+            for (int j = 1; j <= 8; j++) {
+                ChessPosition enemyPos = new ChessPosition(i, j);
+                ChessPiece enemyPiece = board.getPiece(enemyPos);
+
+                // If an enemy piece exists, check if it attacks the king
+                if (enemyPiece != null && enemyPiece.getTeamColor() == enemyColor) {
+                    Collection<ChessMove> moves = enemyPiece.pieceMoves(board, enemyPos);
+                    if (moves != null) {
+                        for (ChessMove move : moves) {
+                            if (move.getEndPosition().equals(kingPosition)) {
+                                return true; // An enemy piece can attack the king
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return false; // No enemy piece threatens the king
     }
 
     /**
      * Helper method to determine if a team has any valid (legal) moves.
      * @param teamColor The team to check.
-     * @return true if the team has at least one valid move, false otherwise.
+     * @return true if the team has NO valid moves, false otherwise.
      */
-    private boolean hasValidMoves(TeamColor teamColor) {
+    private boolean hasNoValidMoves(TeamColor teamColor) {
         for (int i = 1; i <= 8; i++){
             for (int j = 1; j <= 8; j++) {
                 ChessPosition currentPos = new ChessPosition(i, j);
@@ -180,12 +171,12 @@ public class ChessGame {
                 if (piece != null && piece.getTeamColor() == teamColor) {
                     Collection<ChessMove> validMoves = validMoves(currentPos);
                     if (validMoves != null && !validMoves.isEmpty()) {
-                        return false; // Found a valid move
+                        return false; // Found a valid move, so they are not out of moves
                     }
                 }
             }
         }
-        return true; // No valid moves found
+        return true; // No valid moves found for any piece
     }
 
     /**
@@ -198,7 +189,7 @@ public class ChessGame {
         if (!isInCheck(teamColor)) {
             return false;
         }
-        return hasValidMoves(teamColor); // Is in check AND has no valid moves
+        return hasNoValidMoves(teamColor); // Is in check AND has no valid moves
     }
 
     /**
@@ -212,7 +203,7 @@ public class ChessGame {
         if (isInCheck(teamColor)) {
             return false;
         }
-        return hasValidMoves(teamColor); // Is NOT in check AND has no valid moves
+        return hasNoValidMoves(teamColor); // Is NOT in check AND has no valid moves
     }
 
     /**

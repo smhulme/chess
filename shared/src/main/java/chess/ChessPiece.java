@@ -69,21 +69,25 @@ public class ChessPiece {
         };
     }
 
-    // --- NEW HELPER METHOD ---
     /**
-     * Helper method to check if a potential move position is valid (on board, not blocked by own piece)
-     * and add it to the moves collection.
+     * Helper for pieces that move one step in a set of directions (King, Knight).
      */
-    private void addMoveIfValid(ChessBoard board, ChessPosition myPosition, int targetRow, int targetCol, Collection<ChessMove> moves) {
-        if (targetRow >= 1 && targetRow <= 8 && targetCol >= 1 && targetCol <= 8) {
-            ChessPosition newPosition = new ChessPosition(targetRow, targetCol);
-            ChessPiece occupyingPiece = board.getPiece(newPosition);
-            if (occupyingPiece == null || occupyingPiece.getTeamColor() != this.getTeamColor()) {
-                moves.add(new ChessMove(myPosition, newPosition, null));
+    private Collection<ChessMove> calculateDirectionalMoves(ChessBoard board, ChessPosition myPosition, int[][] directions) {
+        Collection<ChessMove> moves = new HashSet<>();
+        for (int[] dir : directions) {
+            int targetRow = myPosition.getRow() + dir[0];
+            int targetCol = myPosition.getColumn() + dir[1];
+
+            if (targetRow >= 1 && targetRow <= 8 && targetCol >= 1 && targetCol <= 8) {
+                ChessPosition newPosition = new ChessPosition(targetRow, targetCol);
+                ChessPiece occupyingPiece = board.getPiece(newPosition);
+                if (occupyingPiece == null || occupyingPiece.getTeamColor() != this.getTeamColor()) {
+                    moves.add(new ChessMove(myPosition, newPosition, null));
+                }
             }
         }
+        return moves;
     }
-    // --- END NEW HELPER METHOD ---
 
 
     private Collection<ChessMove> getLinearMoves(ChessBoard board, ChessPosition myPosition, int[][] directions) {
@@ -142,38 +146,21 @@ public class ChessPiece {
     }
 
     private Collection<ChessMove> getKnightMoves(ChessBoard board, ChessPosition myPosition) {
-        Collection<ChessMove> moves = new HashSet<>();
         int[][] directions = {
                 {1, 2}, {2, 1}, {-1, 2}, {-2, 1},
                 {-1, -2}, {-2, -1}, {1, -2}, {2, -1}
         };
-
-        for (int[] dir : directions) {
-            int row = myPosition.getRow() + dir[0];
-            int col = myPosition.getColumn() + dir[1];
-            // Use the helper method
-            addMoveIfValid(board, myPosition, row, col, moves); // <-- CHANGED
-        }
-        return moves;
+        return calculateDirectionalMoves(board, myPosition, directions);
     }
 
     private Collection<ChessMove> getKingMoves(ChessBoard board, ChessPosition myPosition) {
-        Collection<ChessMove> moves = new HashSet<>();
         int [][] directions = {
                 {1, 1}, {1, -1}, {-1, 1}, {-1, -1},
                 {1,0}, {0,1}, {-1,0}, {0,-1}
         };
-
-        for (int[] dir : directions) {
-            int row = myPosition.getRow() + dir[0];
-            int col = myPosition.getColumn() + dir[1];
-            // Use the helper method
-            addMoveIfValid(board, myPosition, row, col, moves); // <-- CHANGED
-        }
-        return moves;
+        return calculateDirectionalMoves(board, myPosition, directions);
     }
 
-    // ... (getPawnMoves, addPromotionMoves, equals, hashCode remain the same) ...
     private Collection<ChessMove> getPawnMoves(ChessBoard board, ChessPosition myPosition) {
         Collection<ChessMove> moves = new HashSet<>();
         int direction = (this.getTeamColor() == ChessGame.TeamColor.WHITE) ? 1 : -1;
