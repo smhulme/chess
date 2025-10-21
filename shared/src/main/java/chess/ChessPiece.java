@@ -3,6 +3,7 @@ package chess;
 import java.util.Collection;
 import java.util.HashSet;
 
+
 /**
  * Represents a single chess piece
  * <p>
@@ -67,6 +68,23 @@ public class ChessPiece {
             case PAWN -> getPawnMoves(board, myPosition);
         };
     }
+
+    // --- NEW HELPER METHOD ---
+    /**
+     * Helper method to check if a potential move position is valid (on board, not blocked by own piece)
+     * and add it to the moves collection.
+     */
+    private void addMoveIfValid(ChessBoard board, ChessPosition myPosition, int targetRow, int targetCol, Collection<ChessMove> moves) {
+        if (targetRow >= 1 && targetRow <= 8 && targetCol >= 1 && targetCol <= 8) {
+            ChessPosition newPosition = new ChessPosition(targetRow, targetCol);
+            ChessPiece occupyingPiece = board.getPiece(newPosition);
+            if (occupyingPiece == null || occupyingPiece.getTeamColor() != this.getTeamColor()) {
+                moves.add(new ChessMove(myPosition, newPosition, null));
+            }
+        }
+    }
+    // --- END NEW HELPER METHOD ---
+
 
     private Collection<ChessMove> getLinearMoves(ChessBoard board, ChessPosition myPosition, int[][] directions) {
         Collection<ChessMove> moves = new HashSet<>();
@@ -133,13 +151,8 @@ public class ChessPiece {
         for (int[] dir : directions) {
             int row = myPosition.getRow() + dir[0];
             int col = myPosition.getColumn() + dir[1];
-            if (row >= 1 && row <= 8 && col >= 1 && col <= 8) {
-                ChessPosition newPosition = new ChessPosition(row, col);
-                ChessPiece occupyingPiece = board.getPiece(newPosition);
-                if (occupyingPiece == null || occupyingPiece.getTeamColor() != this.getTeamColor()) {
-                    moves.add(new ChessMove(myPosition, newPosition, null));
-                }
-            }
+            // Use the helper method
+            addMoveIfValid(board, myPosition, row, col, moves); // <-- CHANGED
         }
         return moves;
     }
@@ -154,17 +167,13 @@ public class ChessPiece {
         for (int[] dir : directions) {
             int row = myPosition.getRow() + dir[0];
             int col = myPosition.getColumn() + dir[1];
-            if (row >= 1 && row <= 8 && col >= 1 && col <= 8) {
-                ChessPosition newPosition = new ChessPosition(row, col);
-                ChessPiece occupyingPiece = board.getPiece(newPosition);
-                if (occupyingPiece == null || occupyingPiece.getTeamColor() != this.getTeamColor()) {
-                    moves.add(new ChessMove(myPosition, newPosition, null));
-                }
-            }
+            // Use the helper method
+            addMoveIfValid(board, myPosition, row, col, moves); // <-- CHANGED
         }
         return moves;
     }
 
+    // ... (getPawnMoves, addPromotionMoves, equals, hashCode remain the same) ...
     private Collection<ChessMove> getPawnMoves(ChessBoard board, ChessPosition myPosition) {
         Collection<ChessMove> moves = new HashSet<>();
         int direction = (this.getTeamColor() == ChessGame.TeamColor.WHITE) ? 1 : -1;
