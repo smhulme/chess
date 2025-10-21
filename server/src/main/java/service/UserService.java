@@ -2,12 +2,7 @@ package service;
 
 import java.util.UUID;
 
-import dataaccess.AuthAccess;
-import dataaccess.BadRequestException;
-import dataaccess.DataAccessException;
-import dataaccess.ForbiddenException;
-import dataaccess.UnauthorizedException;
-import dataaccess.UserAccess;
+import dataaccess.*;
 import datamodel.RegisterResponse;
 import datamodel.UserData;
 
