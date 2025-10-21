@@ -1,12 +1,12 @@
 package service;
 
-import dataaccess.DataAccess;
+import dataaccess.UserAccess;
 import datamodel.RegisterResponse;
 import datamodel.UserData;
 
 public class UserService {
-    private final DataAccess dataAccess;
-    public UserService(DataAccess dataAccess){
+    private final UserAccess dataAccess;
+    public UserService(UserAccess dataAccess){
         this.dataAccess = dataAccess;
     }
     public RegisterResponse register(UserData user) throws Exception {

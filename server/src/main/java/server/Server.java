@@ -1,6 +1,9 @@
 package server;
 
 import com.google.gson.Gson;
+
+import dataaccess.UserAccess;
+import dataaccess.MemoryDataAccess;
 import datamodel.*;
 import io.javalin.*;
 import io.javalin.http.Context;
@@ -11,7 +14,8 @@ import java.util.Map;
 public class Server {
 
     private final Javalin server;
-    private final UserService userService = new UserService();
+    UserAccess dataAccess = new MemoryDataAccess();
+    private final UserService userService = new UserService(dataAccess);
     public Server() {
 
         server = Javalin.create(config -> config.staticFiles.add("web"));
@@ -22,17 +26,21 @@ public class Server {
 
     private void register(Context ctx) {
         var serializer = new Gson();
-        String reqJson = ctx.body();
-        var user = serializer.fromJson(reqJson, UserData.class);
-        // call service to register
-
-        var registrationResponse = userService.register(user);
-
-
-        ctx.result(serializer.toJson(registrationResponse));
+        try {
+            String reqJson = ctx.body();
+            var user = serializer.fromJson(reqJson, UserData.class);
+            
+            var registrationResponse = userService.register(user);
+            
+            ctx.result(serializer.toJson(registrationResponse));
+        } catch (Exception e) {
+            // Handle different types of registration errors
+            ctx.status(400); // Bad Request
+            ctx.result(serializer.toJson(Map.of("message", "Registration failed: " + e.getMessage())));
+        }
     }
 
-    public int run(int desiredPort) {
+    public int run(int desiredPort) throws Exception {
         server.start(desiredPort);
         return server.port();
     }
