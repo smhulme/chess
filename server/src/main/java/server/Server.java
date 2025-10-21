@@ -4,6 +4,8 @@ import dataaccess.*;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import service.*;
+import com.google.gson.Gson;
+import io.javalin.json.JavalinGson;
 
 public class Server {
 
@@ -21,6 +23,8 @@ public class Server {
 
         userAccess = new MemoryUserAccess();
         authAccess = new MemoryAuthAccess();
+        userAccess = new MemoryUserAccess();
+        authAccess = new MemoryAuthAccess();
         gameAccess = new MemoryGameAccess();
         userService = new UserService(userAccess, authAccess);
         gameService = new GameService(gameAccess, authAccess);
@@ -32,6 +36,7 @@ public class Server {
     public int run(int desiredPort) {
         server = Javalin.create(config -> {
             config.staticFiles.add("web");
+            config.jsonMapper(new JavalinGson()); // <-- Add this line here
         }).start(desiredPort);
 
         server.delete("/db", this::clear);
