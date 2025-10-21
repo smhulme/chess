@@ -3,7 +3,7 @@ package server;
 import com.google.gson.Gson;
 
 import dataaccess.UserAccess;
-import dataaccess.MemoryDataAccess;
+import dataaccess.MemoryUserAccess;
 import datamodel.*;
 import io.javalin.*;
 import io.javalin.http.Context;
@@ -14,7 +14,7 @@ import java.util.Map;
 public class Server {
 
     private final Javalin server;
-    UserAccess dataAccess = new MemoryDataAccess();
+    UserAccess dataAccess = new MemoryUserAccess();
     private final UserService userService = new UserService(dataAccess);
     public Server() {
 

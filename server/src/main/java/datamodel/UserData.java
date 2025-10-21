@@ -1,4 +1,4 @@
 package datamodel;
 
-public record UserData(String username, String email, String password) {
+public record UserData(String username, String password, String email) {
 }
