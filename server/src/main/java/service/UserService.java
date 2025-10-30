@@ -66,7 +66,7 @@ public class UserService {
         authAccess.deleteAuth(authToken);
     }
 
-    public void clear() {
+    public void clear() throws DataAccessException {
         userAccess.clear();
         authAccess.clear();
     }

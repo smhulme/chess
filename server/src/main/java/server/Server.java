@@ -62,9 +62,13 @@ public class Server {
     }
 
     private void clear(Context ctx) {
-        userService.clear();
-        gameService.clear();
-        ctx.status(200).json("{}");
+        try {
+            userService.clear();
+            gameService.clear();
+            ctx.status(200).json("{}");
+        } catch (DataAccessException e) {
+            ctx.status(500).json(new ErrorResponse("Internal server error: " + e.getMessage()));
+        }
     }
 
     private static class ErrorResponse {
