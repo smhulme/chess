@@ -1,5 +1,6 @@
 package server;
 
+import dataaccess.DataAccessException;
 import service.UserService;
 import io.javalin.http.Context;
 import datamodel.*;
@@ -37,6 +38,8 @@ public class UserHandler {
             ctx.status(400).json(new ErrorResponse("Error: Bad Request"));
         } catch (JsonSyntaxException e) {
             ctx.status(400).json(new ErrorResponse("Malformed JSON"));
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -68,6 +71,8 @@ public class UserHandler {
             ctx.status(200).json(new Gson().fromJson("{}", Object.class));
         } catch (UnauthorizedException e) {
             ctx.status(401).json(new ErrorResponse("Error: unauthorized"));
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
         }
     }
     

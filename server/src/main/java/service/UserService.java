@@ -15,7 +15,7 @@ public class UserService {
         this.authAccess = authAccess;
     }
 
-    public RegisterResponse register(UserData user) throws BadRequestException, ForbiddenException {
+    public RegisterResponse register(UserData user) throws BadRequestException, ForbiddenException, DataAccessException {
         // Input validation
         if (user == null ||
             user.username() == null || user.username().isEmpty() ||
@@ -39,7 +39,7 @@ public class UserService {
         return registerResponse;
     }
 
-    public RegisterResponse loginUser(UserData userData) throws UnauthorizedException {
+    public RegisterResponse loginUser(UserData userData) throws UnauthorizedException, DataAccessException {
         boolean userAuth = false;
         try {
             userAuth = userAccess.authenticateUser(userData.username(), userData.password());
@@ -57,7 +57,7 @@ public class UserService {
         }
     }
 
-    public void logoutUser(String authToken) throws UnauthorizedException {
+    public void logoutUser(String authToken) throws UnauthorizedException, DataAccessException {
         try {
             authAccess.getAuth(authToken);
         } catch (DataAccessException e) {
