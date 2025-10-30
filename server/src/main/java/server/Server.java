@@ -21,11 +21,14 @@ public class Server {
 
     public Server() {
 
-        userAccess = new MemoryUserAccess();
-        authAccess = new MemoryAuthAccess();
-        userAccess = new MemoryUserAccess();
-        authAccess = new MemoryAuthAccess();
-        gameAccess = new MemoryGameAccess();
+        try {
+            userAccess = new MySQLUserAccess();
+            authAccess = new MySQLAuthAccess();
+            gameAccess = new MySQLGameAccess();
+        } catch (DataAccessException e) {
+            System.err.println("Failed to initialize database access: " + e.getMessage());
+            System.exit(1);
+        }
         userService = new UserService(userAccess, authAccess);
         gameService = new GameService(gameAccess, authAccess);
         userHandler = new UserHandler(userService);
