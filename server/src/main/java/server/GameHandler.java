@@ -1,5 +1,6 @@
 package server;
 
+import dataaccess.DataAccessException;
 import service.GameService;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -26,6 +27,8 @@ public class GameHandler {
             ctx.status(200).json(Map.of("games", games));
         } catch (UnauthorizedException e) {
             ctx.status(401).json(Map.of("message", "Error: Unauthorized"));
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -72,6 +75,8 @@ public class GameHandler {
             ctx.status(401).json(Map.of("message", "Error: unauthorized"));
         } catch (BadRequestException e) {
             ctx.status(400).json(Map.of("message", "Error: bad request"));
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
         }
     }
     

@@ -1,4 +1,3 @@
-// In server/src/main/java/dataaccess/MySQLAuthAccess.java
 package dataaccess;
 
 import datamodel.RegisterResponse;
