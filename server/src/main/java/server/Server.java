@@ -20,8 +20,9 @@ public class Server {
     private Javalin server;
 
     public Server() {
-
         try {
+            DatabaseManager.createDatabase(); // Ensure DB exists before any connections
+
             userAccess = new MySQLUserAccess();
             authAccess = new MySQLAuthAccess();
             gameAccess = new MySQLGameAccess();
@@ -33,7 +34,6 @@ public class Server {
         gameService = new GameService(gameAccess, authAccess);
         userHandler = new UserHandler(userService);
         gameHandler = new GameHandler(gameService);
-
     }
 
     public int run(int desiredPort) {
