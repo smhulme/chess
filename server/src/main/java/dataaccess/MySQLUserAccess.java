@@ -81,7 +81,12 @@ public class MySQLUserAccess implements UserAccess {
             UserData user = getUser(username);
             return BCrypt.checkpw(password, user.password());
         } catch (DataAccessException e) {
-            return false; 
+            // If it's a database connection error, rethrow it
+            if (e.getCause() instanceof SQLException) {
+                throw e;
+            }
+            // Otherwise it's "user not found" - return false
+            return false;
         }
     }
 
