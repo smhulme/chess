@@ -1,5 +1,6 @@
 package service;
 
+import java.sql.SQLException;
 import java.util.UUID;
 
 import dataaccess.*;
@@ -27,10 +28,16 @@ public class UserService {
         try {
             userAccess.createUser(user);
         } catch (DataAccessException e) {
-            if (e.getMessage().contains("already exists")) { // Adjust this check to your error message
+            // Check for "user already exists" FIRST (before checking SQLException)
+            if (e.getMessage() != null && e.getMessage().contains("already exists")) {
                 throw new ForbiddenException("User already registered");
             }
-            throw new BadRequestException(e.getMessage());
+            // Then check if this is a database connection error (SQLException)
+            if (e.getCause() instanceof SQLException) {
+                throw e;  // Let database connection errors propagate as 500
+            }
+            // Any other DataAccessException
+            throw e;
         }
         String authToken = UUID.randomUUID().toString();
         RegisterResponse registerResponse = new RegisterResponse(user.username(), authToken);
@@ -44,6 +51,11 @@ public class UserService {
         try {
             userAuth = userAccess.authenticateUser(userData.username(), userData.password());
         } catch (DataAccessException e) {
+            // If it's a SQLException, it's a database connection issue
+            if (e.getCause() instanceof SQLException) {
+                throw e;
+            }
+            // Otherwise it's "user not found" - convert to 401
             throw new UnauthorizedException();
         }
 
@@ -61,6 +73,11 @@ public class UserService {
         try {
             authAccess.getAuth(authToken);
         } catch (DataAccessException e) {
+            // If it's a SQLException, it's a database connection issue
+            if (e.getCause() instanceof SQLException) {
+                throw e;
+            }
+            // Otherwise it's "auth token not found" - convert to 401
             throw new UnauthorizedException();
         }
         authAccess.deleteAuth(authToken);

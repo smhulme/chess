@@ -82,7 +82,7 @@ public class MySQLGameAccess implements GameAccess {
     }
 
     @Override
-    public GameData getGame(int gameID) throws DataAccessException {
+    public GameData getGame(int gameID) throws DataAccessException, BadRequestException {
         String sql = "SELECT gameID, whiteUsername, blackUsername, gameName, gameData FROM game WHERE gameID = ?";
         try (var conn = DatabaseManager.getConnection();
              var ps = conn.prepareStatement(sql)) {
@@ -97,10 +97,12 @@ public class MySQLGameAccess implements GameAccess {
                             deserializeGame(rs.getString("gameData"))
                     );
                 } else {
-                    throw new DataAccessException("Game not found: " + gameID);
+                    // Game not found is a bad request - don't include SQLException
+                    throw new BadRequestException("Game not found: " + gameID);
                 }
             }
         } catch (SQLException e) {
+            // Database errors should propagate with SQLException as cause
             throw new DataAccessException("Error finding game: " + e.getMessage(), e);
         }
     }

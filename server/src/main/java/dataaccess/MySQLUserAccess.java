@@ -44,10 +44,12 @@ public class MySQLUserAccess implements UserAccess {
                             rs.getString("email")
                     );
                 } else {
+                    // Don't include SQLException as cause for "not found"
                     throw new DataAccessException("User not found: " + username);
                 }
             }
         } catch (SQLException e) {
+            // Include SQLException as cause for actual database errors
             throw new DataAccessException("Error finding user: " + e.getMessage(), e);
         }
     }
@@ -62,12 +64,12 @@ public class MySQLUserAccess implements UserAccess {
             ps.setString(1, user.username());
             ps.setString(2, hashedPassword);
             ps.setString(3, user.email());
-            
+
             ps.executeUpdate();
-            
+
         } catch (SQLException e) {
             if (e.getErrorCode() == 1062) {
-                throw new DataAccessException("User already exists: " + user.username(), e);
+                throw new DataAccessException("User already exists: " + user.username());
             }
             throw new DataAccessException("Error creating user: " + e.getMessage(), e);
         }

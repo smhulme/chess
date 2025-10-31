@@ -3,6 +3,7 @@ package service;
 import dataaccess.*;
 import datamodel.*;
 
+import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Random;
@@ -20,6 +21,10 @@ public class GameService {
         try {
             authAccess.getAuth(authToken);
         } catch (DataAccessException e) {
+            // If it's a SQLException, it's a database connection issue
+            if (e.getCause() instanceof SQLException) {
+                throw e;
+            }
             throw new UnauthorizedException();
         }
         return gameAccess.listGames();
@@ -29,6 +34,9 @@ public class GameService {
         try {
             authAccess.getAuth(authToken);
         } catch (DataAccessException e) {
+            if (e.getCause() instanceof SQLException) {
+                throw e;
+            }
             throw new UnauthorizedException();
         }
 
@@ -51,14 +59,13 @@ public class GameService {
         try {
             registerResponse = authAccess.getAuth(authToken);
         } catch (DataAccessException e) {
+            if (e.getCause() instanceof SQLException) {
+                throw e;
+            }
             throw new UnauthorizedException();
         }
 
-        try {
-            gameData = gameAccess.getGame(gameID);
-        } catch (DataAccessException e) {
-            throw new BadRequestException(e.getMessage());
-        }
+        gameData = gameAccess.getGame(gameID);
 
         String whiteUser = gameData.whiteUsername();
         String blackUser = gameData.blackUsername();
@@ -83,7 +90,6 @@ public class GameService {
         // If we reach here, color must have been valid (WHITE/BLACK) and the spot free.
         gameAccess.updateGame(new GameData(gameID, whiteUser, blackUser, gameData.gameName(), gameData.game()));
         return true;
-
     }
 
     public void clear() throws DataAccessException {
