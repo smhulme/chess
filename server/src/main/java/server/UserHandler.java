@@ -38,8 +38,8 @@ public class UserHandler {
             ctx.status(400).json(new ErrorResponse("Error: Bad Request"));
         } catch (JsonSyntaxException e) {
             ctx.status(400).json(new ErrorResponse("Malformed JSON"));
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            ctx.status(500).json(new ErrorResponse("Internal server error: " + e.getMessage()));
         }
     }
 
@@ -71,11 +71,11 @@ public class UserHandler {
             ctx.status(200).json(new Gson().fromJson("{}", Object.class));
         } catch (UnauthorizedException e) {
             ctx.status(401).json(new ErrorResponse("Error: unauthorized"));
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            ctx.status(500).json(new ErrorResponse("Internal server error: " + e.getMessage()));
         }
     }
-    
+
     private static class ErrorResponse {
         public final String message;
         public ErrorResponse(String message) {

@@ -28,7 +28,7 @@ public class GameHandler {
         } catch (UnauthorizedException e) {
             ctx.status(401).json(Map.of("message", "Error: Unauthorized"));
         } catch (DataAccessException e) {
-            throw new RuntimeException(e);
+            ctx.status(500).json(Map.of("message", "Error: " + e.getMessage()));
         }
     }
 
@@ -53,7 +53,7 @@ public class GameHandler {
         } catch (Exception e) {
             ctx.status(500).json(Map.of("message", "Error: " + e.getMessage()));
         }
-        
+
     }
 
     public void joinGame(Context ctx) {
@@ -76,8 +76,8 @@ public class GameHandler {
         } catch (BadRequestException e) {
             ctx.status(400).json(Map.of("message", "Error: bad request"));
         } catch (DataAccessException e) {
-            throw new RuntimeException(e);
+            ctx.status(500).json(Map.of("message", "Error: " + e.getMessage()));
         }
     }
-    
+
 }
