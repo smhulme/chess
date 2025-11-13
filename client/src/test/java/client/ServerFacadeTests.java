@@ -27,6 +27,11 @@ public class ServerFacadeTests {
         server.stop();
     }
 
+    @BeforeEach
+    public void clearDatabase() throws ResponseException {
+        facade.clear(); 
+    }
+
     @Test
     public void testRegisterAndLogin() throws Exception {
         UserData user = new UserData("testuser", "testpass", "test@byu.edu");

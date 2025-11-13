@@ -49,6 +49,12 @@ public class ServerFacade {
         makeRequest("PUT", path, body, null, authToken);
     }
 
+    public void clear() throws ResponseException {
+        var path = "/db";
+        // Clears the database. This request has no body or auth token.
+        makeRequest("DELETE", path, null, null); 
+    }
+
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ResponseException {
         return makeRequest(method, path, request, responseClass, null);
     }
@@ -106,7 +112,7 @@ public class ServerFacade {
     private boolean isSuccessful(int status) {
         return status / 100 == 2;
     }
-    
+
     // Helper record to match the server's JSON response for listGames
     record GameListResult(Collection<GameData> games) {}
 }
