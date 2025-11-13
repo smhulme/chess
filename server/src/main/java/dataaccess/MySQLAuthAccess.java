@@ -2,7 +2,6 @@ package dataaccess;
 
 import datamodel.RegisterResponse;
 import java.sql.*;
-import java.util.UUID;
 
 public class MySQLAuthAccess implements AuthAccess {
 

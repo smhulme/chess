@@ -1,15 +1,15 @@
 package server;
 
-import dataaccess.DataAccessException;
 import service.UserService;
 import io.javalin.http.Context;
-import datamodel.*;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
 import dataaccess.BadRequestException;
 import dataaccess.UnauthorizedException;
 import dataaccess.ForbiddenException;
+import datamodel.*;
+
 
 
 
