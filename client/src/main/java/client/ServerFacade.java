@@ -1,7 +1,7 @@
 package client;
 
 import com.google.gson.Gson;
-import datamodel.RegisterResponse; // Assuming these models exist in your shared module
+import datamodel.RegisterResponse;
 import datamodel.GameData;
 import datamodel.UserData;
 
@@ -52,7 +52,7 @@ public class ServerFacade {
     public void clear() throws ResponseException {
         var path = "/db";
         // Clears the database. This request has no body or auth token.
-        makeRequest("DELETE", path, null, null); 
+        makeRequest("DELETE", path, null, null);
     }
 
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ResponseException {
@@ -64,7 +64,9 @@ public class ServerFacade {
             URL url = URI.create(serverUrl + path).toURL();
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
             http.setRequestMethod(method);
-            http.setDoOutput(true);
+
+            // Only enable output if we have a request
+            http.setDoOutput(request != null);
 
             if (authHeader != null) {
                 http.addRequestProperty("authorization", authHeader);
@@ -74,6 +76,8 @@ public class ServerFacade {
             http.connect();
             throwIfNotSuccessful(http);
             return readBody(http, responseClass);
+        } catch (ResponseException rex) {
+            throw rex;
         } catch (Exception ex) {
             throw new ResponseException(500, ex.getMessage());
         }
@@ -92,21 +96,40 @@ public class ServerFacade {
     private void throwIfNotSuccessful(HttpURLConnection http) throws IOException, ResponseException {
         var status = http.getResponseCode();
         if (!isSuccessful(status)) {
-            throw new ResponseException(status, "Failure: " + status);
+            String message = "Failure: " + status;
+            InputStream err = http.getErrorStream();
+            if (err != null) {
+                try (BufferedReader br = new BufferedReader(new InputStreamReader(err))) {
+                    StringBuilder sb = new StringBuilder();
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        sb.append(line).append('\n');
+                    }
+                    if (sb.length() > 0) message += " - " + sb.toString().trim();
+                } catch (IOException ignored) {}
+            }
+            throw new ResponseException(status, message);
         }
     }
 
     private static <T> T readBody(HttpURLConnection http, Class<T> responseClass) throws IOException {
-        T response = null;
-        if (http.getContentLength() < 0) {
-            try (InputStream respBody = http.getInputStream()) {
-                InputStreamReader reader = new InputStreamReader(respBody);
-                if (responseClass != null) {
-                    response = new Gson().fromJson(reader, responseClass);
+        if (responseClass == null) return null;
+
+        try (InputStream respBody = http.getInputStream()) {
+            if (respBody == null) return null;
+            InputStreamReader reader = new InputStreamReader(respBody);
+            return new Gson().fromJson(reader, responseClass);
+        } catch (IOException ioe) {
+            InputStream err = http.getErrorStream();
+            if (err != null) {
+                try (InputStreamReader reader = new InputStreamReader(err)) {
+                    return new Gson().fromJson(reader, responseClass);
+                } catch (Exception ignore) {
+                    return null;
                 }
             }
+            return null;
         }
-        return response;
     }
 
     private boolean isSuccessful(int status) {
