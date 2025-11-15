@@ -51,7 +51,6 @@ public class ServerFacade {
 
     public void clear() throws ResponseException {
         var path = "/db";
-        // Clears the database. This request has no body or auth token.
         makeRequest("DELETE", path, null, null);
     }
 
@@ -65,7 +64,6 @@ public class ServerFacade {
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
             http.setRequestMethod(method);
 
-            // Only enable output if we have a request
             http.setDoOutput(request != null);
 
             if (authHeader != null) {
@@ -137,5 +135,5 @@ public class ServerFacade {
     }
 
     // Helper record to match the server's JSON response for listGames
-    record GameListResult(Collection<GameData> games) {}
+    public record GameListResult(Collection<GameData> games) {}
 }
