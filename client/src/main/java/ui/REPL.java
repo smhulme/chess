@@ -24,7 +24,7 @@ public class REPL {
     public void run() {
         System.out.println("♕ Welcome to 240 Chess Client. Type 'help' for commands.");
         boolean running = true;
-        
+
         while (running) {
             try {
                 if (authToken == null) {
@@ -36,21 +36,21 @@ public class REPL {
                 System.out.println("Error: " + getErrorMessage(e));
             }
         }
-        
+
         System.out.println("Goodbye!");
     }
 
     private boolean runPrelogin() {
         System.out.print("[LOGGED OUT] >>> ");
         String input = scanner.nextLine().trim();
-        
+
         if (input.isEmpty()) {
             return true;
         }
-        
+
         String[] tokens = input.split("\\s+");
         String cmd = tokens[0].toLowerCase();
-        
+
         switch (cmd) {
             case "help":
                 printPreloginHelp();
@@ -67,21 +67,21 @@ public class REPL {
             default:
                 System.out.println("Unknown command. Type 'help' for available commands.");
         }
-        
+
         return true;
     }
 
     private boolean runPostlogin() {
         System.out.print("[" + username + "] >>> ");
         String input = scanner.nextLine().trim();
-        
+
         if (input.isEmpty()) {
             return true;
         }
-        
+
         String[] tokens = input.split("\\s+");
         String cmd = tokens[0].toLowerCase();
-        
+
         switch (cmd) {
             case "help":
                 printPostloginHelp();
@@ -107,7 +107,7 @@ public class REPL {
             default:
                 System.out.println("Unknown command. Type 'help' for available commands.");
         }
-        
+
         return true;
     }
 
@@ -134,24 +134,24 @@ public class REPL {
         try {
             System.out.print("Username: ");
             String user = scanner.nextLine().trim();
-            
+
             System.out.print("Password: ");
             String pass = scanner.nextLine().trim();
-            
+
             System.out.print("Email: ");
             String email = scanner.nextLine().trim();
-            
+
             if (user.isEmpty() || pass.isEmpty() || email.isEmpty()) {
                 System.out.println("All fields are required.");
                 return;
             }
-            
+
             UserData userData = new UserData(user, pass, email);
             RegisterResponse response = facade.register(userData);
-            
+
             authToken = response.authToken();
             username = response.username();
-            
+
             System.out.println("Successfully registered and logged in as " + username);
         } catch (ResponseException e) {
             System.out.println("Registration failed: " + getErrorMessage(e));
@@ -162,21 +162,21 @@ public class REPL {
         try {
             System.out.print("Username: ");
             String user = scanner.nextLine().trim();
-            
+
             System.out.print("Password: ");
             String pass = scanner.nextLine().trim();
-            
+
             if (user.isEmpty() || pass.isEmpty()) {
                 System.out.println("Username and password are required.");
                 return;
             }
-            
+
             UserData userData = new UserData(user, pass, null);
             RegisterResponse response = facade.login(userData);
-            
+
             authToken = response.authToken();
             username = response.username();
-            
+
             System.out.println("Successfully logged in as " + username);
         } catch (ResponseException e) {
             System.out.println("Login failed: " + getErrorMessage(e));
@@ -199,15 +199,15 @@ public class REPL {
         try {
             System.out.print("Game name: ");
             String gameName = scanner.nextLine().trim();
-            
+
             if (gameName.isEmpty()) {
                 System.out.println("Game name is required.");
                 return;
             }
-            
+
             GameData gameData = new GameData(0, null, null, gameName, null);
             facade.createGame(gameData, authToken);
-            
+
             System.out.println("Game created: " + gameName);
         } catch (ResponseException e) {
             System.out.println("Failed to create game: " + getErrorMessage(e));
@@ -218,19 +218,19 @@ public class REPL {
         try {
             ServerFacade.GameListResult result = facade.listGames(authToken);
             Collection<GameData> games = result.games();
-            
+
             if (games == null || games.isEmpty()) {
                 System.out.println("No games available.");
                 return;
             }
-            
+
             gameNumberMap.clear();
             int number = 1;
-            
+
             System.out.println("\nAvailable Games:");
             for (GameData game : games) {
                 gameNumberMap.put(number, game);
-                
+
                 String whitePlayer = game.whiteUsername() != null ? game.whiteUsername() : "(empty)";
                 String blackPlayer = game.blackUsername() != null ? game.blackUsername() : "(empty)";
                 
@@ -245,104 +245,96 @@ public class REPL {
     }
 
     private void handlePlayGame() {
-    if (gameNumberMap.isEmpty()) {
-        System.out.println("Please list games first using 'list' command.");
-        return;
-    }
-    
-    try {
-        System.out.print("Enter game number: ");
-        String numStr = scanner.nextLine().trim();
-        
-        // Better error handling for non-numeric input
-        int gameNum;
-        try {
-            gameNum = Integer.parseInt(numStr);
-        } catch (NumberFormatException e) {
-            System.out.println("Invalid input. Please enter a valid game number.");
-            return;
-        }
-        
-        if (gameNum < 1 || gameNum > gameNumberMap.size()) {
-            System.out.println("Invalid game number. Please enter a number between 1 and " + gameNumberMap.size());
-            return;
-        }
-        
-        if (!gameNumberMap.containsKey(gameNum)) {
-            System.out.println("Invalid game number.");
-            return;
-        }
-        
-        System.out.print("Enter color (WHITE/BLACK): ");
-        String color = scanner.nextLine().trim().toUpperCase();
-        
-        if (!color.equals("WHITE") && !color.equals("BLACK")) {
-            System.out.println("Invalid color. Must be WHITE or BLACK.");
-            return;
-        }
-        
-        GameData game = gameNumberMap.get(gameNum);
-        facade.joinGame(authToken, color, game.gameID());
-        
-        System.out.println("Joined game as " + color);
-        
-        ChessBoard board = new ChessBoard();
-        board.resetBoard();
-        ChessGame.TeamColor perspective = color.equals("WHITE") ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
-        DrawBoard drawer = new DrawBoard(board);
-        drawer.draw(perspective);
-        
-    } catch (ResponseException e) {
-        System.out.println("Failed to join game: " + getErrorMessage(e));
-    } catch (Exception e) {
-        System.out.println("An error occurred: " + getErrorMessage(e));
-    }
-}
-
-    private void handleObserveGame() {
         if (gameNumberMap.isEmpty()) {
             System.out.println("Please list games first using 'list' command.");
             return;
         }
         
         try {
-            System.out.print("Enter game number: ");
-            String numStr = scanner.nextLine().trim();
-            
-            // Better error handling for non-numeric input
-            int gameNum;
-            try {
-                gameNum = Integer.parseInt(numStr);
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid input. Please enter a valid game number.");
+            Integer gameNum = getValidGameNumber();
+            if (gameNum == null) {
                 return;
             }
             
-            if (gameNum < 1 || gameNum > gameNumberMap.size()) {
-                System.out.println("Invalid game number. Please enter a number between 1 and " + gameNumberMap.size());
-                return;
-            }
+            System.out.print("Enter color (WHITE/BLACK): ");
+            String color = scanner.nextLine().trim().toUpperCase();
             
-            if (!gameNumberMap.containsKey(gameNum)) {
-                System.out.println("Invalid game number.");
+            if (!color.equals("WHITE") && !color.equals("BLACK")) {
+                System.out.println("Invalid color. Must be WHITE or BLACK.");
                 return;
             }
             
             GameData game = gameNumberMap.get(gameNum);
+            facade.joinGame(authToken, color, game.gameID());
+            
+            System.out.println("Joined game as " + color);
+            
+            ChessBoard board = new ChessBoard();
+            board.resetBoard();
+            ChessGame.TeamColor perspective = color.equals("WHITE") ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
+            DrawBoard drawer = new DrawBoard(board);
+            drawer.draw(perspective);
+            
+        } catch (ResponseException e) {
+            System.out.println("Failed to join game: " + getErrorMessage(e));
+        } catch (Exception e) {
+            System.out.println("An error occurred: " + getErrorMessage(e));
+        }
+    }
+
+    private void handleObserveGame() {
+        if (gameNumberMap.isEmpty()) {
+            System.out.println("Please list games first using 'list' command.");
+            return;
+        }
+
+        try {
+            Integer gameNum = getValidGameNumber();
+            if (gameNum == null) {
+                return;
+            }
+
+            GameData game = gameNumberMap.get(gameNum);
             facade.joinGame(authToken, null, game.gameID());
-            
+
             System.out.println("Observing game: " + game.gameName());
-            
+
             ChessBoard board = new ChessBoard();
             board.resetBoard();
             DrawBoard drawer = new DrawBoard(board);
             drawer.draw(ChessGame.TeamColor.WHITE);
-            
+
         } catch (ResponseException e) {
             System.out.println("Failed to observe game: " + getErrorMessage(e));
         } catch (Exception e) {
             System.out.println("An error occurred: " + getErrorMessage(e));
         }
+    }
+
+    // eliminates duplicate code
+    private Integer getValidGameNumber() {
+        System.out.print("Enter game number: ");
+        String numStr = scanner.nextLine().trim();
+        
+        int gameNum;
+        try {
+            gameNum = Integer.parseInt(numStr);
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input. Please enter a valid game number.");
+            return null;
+        }
+        
+        if (gameNum < 1 || gameNum > gameNumberMap.size()) {
+            System.out.println("Invalid game number. Please enter a number between 1 and " + gameNumberMap.size());
+            return null;
+        }
+        
+        if (!gameNumberMap.containsKey(gameNum)) {
+            System.out.println("Invalid game number.");
+            return null;
+        }
+        
+        return gameNum;
     }
 
     private String getErrorMessage(Exception e) {
