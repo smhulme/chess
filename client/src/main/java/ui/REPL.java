@@ -245,47 +245,59 @@ public class REPL {
     }
 
     private void handlePlayGame() {
-        if (gameNumberMap.isEmpty()) {
-            System.out.println("Please list games first using 'list' command.");
+    if (gameNumberMap.isEmpty()) {
+        System.out.println("Please list games first using 'list' command.");
+        return;
+    }
+    
+    try {
+        System.out.print("Enter game number: ");
+        String numStr = scanner.nextLine().trim();
+        
+        // Better error handling for non-numeric input
+        int gameNum;
+        try {
+            gameNum = Integer.parseInt(numStr);
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input. Please enter a valid game number.");
             return;
         }
         
-        try {
-            System.out.print("Enter game number: ");
-            String numStr = scanner.nextLine().trim();
-            int gameNum = Integer.parseInt(numStr);
-            
-            if (!gameNumberMap.containsKey(gameNum)) {
-                System.out.println("Invalid game number.");
-                return;
-            }
-            
-            System.out.print("Enter color (WHITE/BLACK): ");
-            String color = scanner.nextLine().trim().toUpperCase();
-            
-            if (!color.equals("WHITE") && !color.equals("BLACK")) {
-                System.out.println("Invalid color. Must be WHITE or BLACK.");
-                return;
-            }
-            
-            GameData game = gameNumberMap.get(gameNum);
-            facade.joinGame(authToken, color, game.gameID());
-            
-            System.out.println("Joined game as " + color);
-            
-            // Draw board from appropriate perspective using your DrawBoard class
-            ChessBoard board = new ChessBoard();
-            board.resetBoard(); // Initialize to starting position
-            ChessGame.TeamColor perspective = color.equals("WHITE") ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
-            DrawBoard drawer = new DrawBoard(board);
-            drawer.draw(perspective);
-            
-        } catch (NumberFormatException e) {
-            System.out.println("Invalid game number format.");
-        } catch (ResponseException e) {
-            System.out.println("Failed to join game: " + getErrorMessage(e));
+        if (gameNum < 1 || gameNum > gameNumberMap.size()) {
+            System.out.println("Invalid game number. Please enter a number between 1 and " + gameNumberMap.size());
+            return;
         }
+        
+        if (!gameNumberMap.containsKey(gameNum)) {
+            System.out.println("Invalid game number.");
+            return;
+        }
+        
+        System.out.print("Enter color (WHITE/BLACK): ");
+        String color = scanner.nextLine().trim().toUpperCase();
+        
+        if (!color.equals("WHITE") && !color.equals("BLACK")) {
+            System.out.println("Invalid color. Must be WHITE or BLACK.");
+            return;
+        }
+        
+        GameData game = gameNumberMap.get(gameNum);
+        facade.joinGame(authToken, color, game.gameID());
+        
+        System.out.println("Joined game as " + color);
+        
+        ChessBoard board = new ChessBoard();
+        board.resetBoard();
+        ChessGame.TeamColor perspective = color.equals("WHITE") ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
+        DrawBoard drawer = new DrawBoard(board);
+        drawer.draw(perspective);
+        
+    } catch (ResponseException e) {
+        System.out.println("Failed to join game: " + getErrorMessage(e));
+    } catch (Exception e) {
+        System.out.println("An error occurred: " + getErrorMessage(e));
     }
+}
 
     private void handleObserveGame() {
         if (gameNumberMap.isEmpty()) {
@@ -296,7 +308,20 @@ public class REPL {
         try {
             System.out.print("Enter game number: ");
             String numStr = scanner.nextLine().trim();
-            int gameNum = Integer.parseInt(numStr);
+            
+            // Better error handling for non-numeric input
+            int gameNum;
+            try {
+                gameNum = Integer.parseInt(numStr);
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a valid game number.");
+                return;
+            }
+            
+            if (gameNum < 1 || gameNum > gameNumberMap.size()) {
+                System.out.println("Invalid game number. Please enter a number between 1 and " + gameNumberMap.size());
+                return;
+            }
             
             if (!gameNumberMap.containsKey(gameNum)) {
                 System.out.println("Invalid game number.");
@@ -308,16 +333,15 @@ public class REPL {
             
             System.out.println("Observing game: " + game.gameName());
             
-            // Observers see from white perspective
             ChessBoard board = new ChessBoard();
-            board.resetBoard(); // Initialize to starting position
+            board.resetBoard();
             DrawBoard drawer = new DrawBoard(board);
             drawer.draw(ChessGame.TeamColor.WHITE);
             
-        } catch (NumberFormatException e) {
-            System.out.println("Invalid game number format.");
         } catch (ResponseException e) {
             System.out.println("Failed to observe game: " + getErrorMessage(e));
+        } catch (Exception e) {
+            System.out.println("An error occurred: " + getErrorMessage(e));
         }
     }
 
