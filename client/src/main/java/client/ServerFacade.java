@@ -94,7 +94,7 @@ public class ServerFacade {
     private void throwIfNotSuccessful(HttpURLConnection http) throws IOException, ResponseException {
         var status = http.getResponseCode();
         if (!isSuccessful(status)) {
-            String message = "Failure: " + status;
+            String message = "";
             InputStream err = http.getErrorStream();
             if (err != null) {
                 try (BufferedReader br = new BufferedReader(new InputStreamReader(err))) {
@@ -103,11 +103,31 @@ public class ServerFacade {
                     while ((line = br.readLine()) != null) {
                         sb.append(line).append('\n');
                     }
-                    if (sb.length() > 0) message += " - " + sb.toString().trim();
+                    if (sb.length() > 0) {
+                        message = sb.toString().trim();
+                    }
                 } catch (IOException ignored) {}
             }
+            
+            // Provide user-friendly messages instead of status codes
+            if (message.isEmpty()) {
+                message = getUserFriendlyMessage(status);
+            }
+            
             throw new ResponseException(status, message);
         }
+    }
+
+    private String getUserFriendlyMessage(int status) {
+        return switch (status) {
+            case 400 -> "Invalid request. Please check your input.";
+            case 401 -> "Authentication required. Please login again.";
+            case 403 -> "You don't have permission to perform this action.";
+            case 404 -> "Resource not found.";
+            case 409 -> "This request conflicts with existing data.";
+            case 500 -> "Server error. Please try again later.";
+            default -> "An error occurred. Please try again.";
+        };
     }
 
     private static <T> T readBody(HttpURLConnection http, Class<T> responseClass) throws IOException {
