@@ -347,7 +347,9 @@ public class REPL {
 
     private String getErrorMessage(Exception e) {
         if (e instanceof ResponseException) {
-            return e.getMessage();
+            ResponseException re = (ResponseException) e;
+            // Return only the message, not the status code
+            return re.getMessage();
         }
         return e.getMessage() != null ? e.getMessage() : "An unexpected error occurred";
     }
