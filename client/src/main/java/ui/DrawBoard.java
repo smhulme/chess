@@ -102,14 +102,7 @@ public class DrawBoard {
 
         switch (piece.getPieceType()) {
             case KING -> out.print(isLightSquare ? BLACK_KING : WHITE_KING); 
-            // Note: The constants in EscapeSequences are confusingly named "WHITE_KING" for the symbol ♔.
-            // Usually ♔ is used for White and ♚ for Black, but depending on your font/terminal 
-            // you might want to inverse them if the background is dark. 
-            // For now, I will use the generic piece letters if you prefer, 
-            // OR assuming the constants provided in EscapeSequences map correctly.
-            // A simple robust way is to just use letters if icons fail, 
-            // but here is the icon usage assuming standard mapping:
-            case QUEEN -> out.print(BLACK_QUEEN); // Using "BLACK_*" vars because they are often filled shapes
+            case QUEEN -> out.print(BLACK_QUEEN); 
             case BISHOP -> out.print(BLACK_BISHOP);
             case KNIGHT -> out.print(BLACK_KNIGHT);
             case ROOK -> out.print(BLACK_ROOK);
