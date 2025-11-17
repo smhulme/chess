@@ -320,7 +320,7 @@ public class REPL {
         try {
             gameNum = Integer.parseInt(numStr);
         } catch (NumberFormatException e) {
-            System.out.println("Invalid input. Please enter a valid game number.");
+            System.out.println("Invalid input. Please enter a valid numerical game number.");
             return null;
         }
         
