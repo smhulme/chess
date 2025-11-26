@@ -45,7 +45,13 @@ public class ServerFacade {
 
     public void joinGame(String authToken, String playerColor, int gameID) throws ResponseException {
         var path = "/game";
-        var body = Map.of("playerColor", playerColor == null ? "" : playerColor, "gameID", gameID);
+        // Don't include playerColor in the map if it's null (for observers)
+        Map<String, Object> body;
+        if (playerColor == null) {
+            body = Map.of("gameID", gameID);
+        } else {
+            body = Map.of("playerColor", playerColor, "gameID", gameID);
+        }
         makeRequest("PUT", path, body, null, authToken);
     }
 
@@ -104,16 +110,28 @@ public class ServerFacade {
                         sb.append(line).append('\n');
                     }
                     if (sb.length() > 0) {
-                        message = sb.toString().trim();
+                        String rawResponse = sb.toString().trim();
+                        // Try to parse JSON and extract the message field
+                        try {
+                            var errorResponse = new Gson().fromJson(rawResponse, java.util.Map.class);
+                            if (errorResponse != null && errorResponse.containsKey("message")) {
+                                message = (String) errorResponse.get("message");
+                            } else {
+                                message = rawResponse;
+                            }
+                        } catch (Exception e) {
+                            // If JSON parsing fails, use the raw response
+                            message = rawResponse;
+                        }
                     }
                 } catch (IOException ignored) {}
             }
-            
+
             // Provide user-friendly messages instead of status codes
             if (message.isEmpty()) {
                 message = getUserFriendlyMessage(status);
             }
-            
+
             throw new ResponseException(status, message);
         }
     }
