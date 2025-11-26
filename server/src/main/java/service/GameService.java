@@ -83,9 +83,12 @@ public class GameService {
             } else {
                 blackUser = registerResponse.username();
             }
-        } else if (color == null || color.isEmpty()) { // Check for null or empty string explicitly
-            throw new BadRequestException("Error: Player color cannot be null or empty");
-        } else { // Check for other invalid colors like "GREEN"
+        } else if (color == null || color.isEmpty()) {
+            // Observer mode - don't modify the game, just verify auth and game exist
+            // This is valid and should return success
+            return true;
+        } else {
+            // Check for other invalid colors like "GREEN"
             throw new BadRequestException("%s is not a valid team color".formatted(color));
         }
         // If we reach here, color must have been valid (WHITE/BLACK) and the spot free.
