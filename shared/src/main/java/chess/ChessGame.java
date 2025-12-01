@@ -233,6 +233,16 @@ public class ChessGame {
         return board;
     }
 
+    private boolean gameOver = false;
+
+    public void setGameOver(boolean gameOver) {
+        this.gameOver = gameOver;
+    }
+
+    public boolean isGameOver() {
+        return gameOver;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -243,14 +253,15 @@ public class ChessGame {
         }
         ChessGame that = (ChessGame) o;
         return (this.turn == that.turn) &&
-                (this.board != null ? this.board.equals(that.board) : that.board == null);
+                (this.board != null ? this.board.equals(that.board) : that.board == null) &&
+                (this.gameOver == that.gameOver);
     }
 
     @Override
     public int hashCode() {
         int result = (board != null) ? board.hashCode() : 0;
         result = 31 * result + (turn != null ? turn.hashCode() : 0);
+        result = 31 * result + (gameOver ? 1 : 0);
         return result;
     }
 }
-
