@@ -3,7 +3,6 @@ package service;
 import dataaccess.*;
 import datamodel.*;
 
-
 import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Objects;
@@ -47,7 +46,7 @@ public class GameService {
             gameID = rand.nextInt(9999) + 1;
         } while (gameAccess.gameExists(gameID));
 
-        gameAccess.createGame(new GameData(gameID, null, null, gameName, null));
+        gameAccess.createGame(new GameData(gameID, null, null, gameName, new chess.ChessGame()));
 
         return gameID;
     }

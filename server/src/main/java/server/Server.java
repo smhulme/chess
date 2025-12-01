@@ -6,6 +6,7 @@ import io.javalin.http.Context;
 import service.*;
 import com.google.gson.Gson;
 import io.javalin.json.JavalinGson;
+import server.websocket.WebSocketHandler;
 
 public class Server {
 
@@ -16,6 +17,7 @@ public class Server {
     GameService gameService;
     UserHandler userHandler;
     GameHandler gameHandler;
+    WebSocketHandler webSocketHandler;
 
     private Javalin server;
 
@@ -34,6 +36,7 @@ public class Server {
         gameService = new GameService(gameAccess, authAccess);
         userHandler = new UserHandler(userService);
         gameHandler = new GameHandler(gameService);
+        webSocketHandler = new WebSocketHandler(authAccess, gameAccess);
     }
 
     public int run(int desiredPort) {
@@ -41,6 +44,8 @@ public class Server {
             config.staticFiles.add("web");
             config.jsonMapper(new JavalinGson()); // <-- Add this line here
         }).start(desiredPort);
+
+        server.ws("/ws", webSocketHandler::register);
 
         server.delete("/db", this::clear);
         server.post("/user", userHandler::register);
@@ -51,8 +56,10 @@ public class Server {
         server.post("/game", gameHandler::createGame);
         server.put("/game", gameHandler::joinGame);
 
-        server.exception(UnauthorizedException.class, (e, ctx) -> ctx.status(401).json(new ErrorResponse("Error: unauthorized")));
-        server.exception(BadRequestException.class, (e, ctx) -> ctx.status(400).json(new ErrorResponse("Error: bad request")));
+        server.exception(UnauthorizedException.class,
+                (e, ctx) -> ctx.status(401).json(new ErrorResponse("Error: unauthorized")));
+        server.exception(BadRequestException.class,
+                (e, ctx) -> ctx.status(400).json(new ErrorResponse("Error: bad request")));
         server.exception(Exception.class, (e, ctx) -> ctx.status(500).json(new ErrorResponse("Internal server error")));
 
         return server.port();
@@ -76,8 +83,9 @@ public class Server {
 
     private static class ErrorResponse {
         public final String message;
-        public ErrorResponse(String message) { 
-            this.message = message; 
+
+        public ErrorResponse(String message) {
+            this.message = message;
         }
     }
 }
