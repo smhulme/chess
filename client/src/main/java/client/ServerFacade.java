@@ -18,6 +18,10 @@ public class ServerFacade {
         serverUrl = url;
     }
 
+    public String getServerUrl() {
+        return serverUrl;
+    }
+
     public RegisterResponse register(UserData user) throws ResponseException {
         var path = "/user";
         return makeRequest("POST", path, user, RegisterResponse.class);
