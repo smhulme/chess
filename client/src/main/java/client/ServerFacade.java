@@ -129,21 +129,27 @@ public class ServerFacade {
                 }
                 if (sb.length() > 0) {
                     String rawResponse = sb.toString().trim();
-                    // Try to parse JSON and extract the message field
-                    try {
-                        var errorResponse = new Gson().fromJson(rawResponse, java.util.Map.class);
-                        if (errorResponse != null && errorResponse.containsKey("message")) {
-                            message = (String) errorResponse.get("message");
-                        } else {
-                            message = rawResponse;
-                        }
-                    } catch (Exception e) {
-                        // If JSON parsing fails, use the raw response
-                        message = rawResponse;
-                    }
+                    message = parseErrorBody(rawResponse);
                 }
             } catch (IOException ignored) {
             }
+        }
+        return message;
+    }
+
+    private String parseErrorBody(String rawResponse) {
+        String message;
+        // Try to parse JSON and extract the message field
+        try {
+            var errorResponse = new Gson().fromJson(rawResponse, java.util.Map.class);
+            if (errorResponse != null && errorResponse.containsKey("message")) {
+                message = (String) errorResponse.get("message");
+            } else {
+                message = rawResponse;
+            }
+        } catch (Exception e) {
+            // If JSON parsing fails, use the raw response
+            message = rawResponse;
         }
         return message;
     }
