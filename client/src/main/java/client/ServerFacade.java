@@ -64,11 +64,13 @@ public class ServerFacade {
         makeRequest("DELETE", path, null, null);
     }
 
-    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ResponseException {
+    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass)
+            throws ResponseException {
         return makeRequest(method, path, request, responseClass, null);
     }
 
-    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass, String authHeader) throws ResponseException {
+    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass, String authHeader)
+            throws ResponseException {
         try {
             URL url = URI.create(serverUrl + path).toURL();
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
@@ -104,32 +106,7 @@ public class ServerFacade {
     private void throwIfNotSuccessful(HttpURLConnection http) throws IOException, ResponseException {
         var status = http.getResponseCode();
         if (!isSuccessful(status)) {
-            String message = "";
-            InputStream err = http.getErrorStream();
-            if (err != null) {
-                try (BufferedReader br = new BufferedReader(new InputStreamReader(err))) {
-                    StringBuilder sb = new StringBuilder();
-                    String line;
-                    while ((line = br.readLine()) != null) {
-                        sb.append(line).append('\n');
-                    }
-                    if (sb.length() > 0) {
-                        String rawResponse = sb.toString().trim();
-                        // Try to parse JSON and extract the message field
-                        try {
-                            var errorResponse = new Gson().fromJson(rawResponse, java.util.Map.class);
-                            if (errorResponse != null && errorResponse.containsKey("message")) {
-                                message = (String) errorResponse.get("message");
-                            } else {
-                                message = rawResponse;
-                            }
-                        } catch (Exception e) {
-                            // If JSON parsing fails, use the raw response
-                            message = rawResponse;
-                        }
-                    }
-                } catch (IOException ignored) {}
-            }
+            String message = readErrorMessage(http);
 
             // Provide user-friendly messages instead of status codes
             if (message.isEmpty()) {
@@ -138,6 +115,37 @@ public class ServerFacade {
 
             throw new ResponseException(status, message);
         }
+    }
+
+    private String readErrorMessage(HttpURLConnection http) {
+        String message = "";
+        InputStream err = http.getErrorStream();
+        if (err != null) {
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(err))) {
+                StringBuilder sb = new StringBuilder();
+                String line;
+                while ((line = br.readLine()) != null) {
+                    sb.append(line).append('\n');
+                }
+                if (sb.length() > 0) {
+                    String rawResponse = sb.toString().trim();
+                    // Try to parse JSON and extract the message field
+                    try {
+                        var errorResponse = new Gson().fromJson(rawResponse, java.util.Map.class);
+                        if (errorResponse != null && errorResponse.containsKey("message")) {
+                            message = (String) errorResponse.get("message");
+                        } else {
+                            message = rawResponse;
+                        }
+                    } catch (Exception e) {
+                        // If JSON parsing fails, use the raw response
+                        message = rawResponse;
+                    }
+                }
+            } catch (IOException ignored) {
+            }
+        }
+        return message;
     }
 
     private String getUserFriendlyMessage(int status) {
@@ -181,5 +189,6 @@ public class ServerFacade {
     }
 
     // Helper record to match the server's JSON response for listGames
-    public record GameListResult(Collection<GameData> games) {}
+    public record GameListResult(Collection<GameData> games) {
+    }
 }

@@ -37,7 +37,7 @@ public class DrawBoard {
         out.print(SET_BG_COLOR_LIGHT_GREY);
         out.print(EMPTY); // Corner spacer
 
-        String[] headers = {" a ", " b ", " c ", " d ", " e ", " f ", " g ", " h "};
+        String[] headers = { " a ", " b ", " c ", " d ", " e ", " f ", " g ", " h " };
         if (perspective == ChessGame.TeamColor.BLACK) {
             for (int i = 7; i >= 0; i--) {
                 printHeader(out, headers[i]);
@@ -70,28 +70,7 @@ public class DrawBoard {
             out.print(" " + row + " ");
 
             for (int col = 1; col <= 8; col++) {
-                int actualCol = (perspective == ChessGame.TeamColor.BLACK) ? (9 - col) : col;
-                ChessPosition currentPos = new ChessPosition(row, actualCol);
-                boolean isLightSquare = (row + actualCol) % 2 != 0;
-
-                boolean isHighlight = false;
-                if (highlightPos != null && validMoves != null) {
-                    if (currentPos.equals(highlightPos)) {
-                        isHighlight = true; // Highlight the piece itself
-                    } else {
-                        for (ChessMove move : validMoves) {
-                            if (move.getEndPosition().equals(currentPos)) {
-                                isHighlight = true; // Highlight legal move destination
-                                break;
-                            }
-                        }
-                    }
-                }
-
-                setSquareColor(out, isLightSquare, isHighlight);
-
-                ChessPiece piece = board.getPiece(currentPos);
-                printPiece(out, piece, isLightSquare);
+                drawSquare(out, row, col, perspective, highlightPos, validMoves);
             }
 
             // Row number suffix
@@ -101,6 +80,32 @@ public class DrawBoard {
             out.print(RESET_BG_COLOR);
             out.println();
         }
+    }
+
+    private void drawSquare(PrintStream out, int row, int col, ChessGame.TeamColor perspective,
+            ChessPosition highlightPos, Collection<ChessMove> validMoves) {
+        int actualCol = (perspective == ChessGame.TeamColor.BLACK) ? (9 - col) : col;
+        ChessPosition currentPos = new ChessPosition(row, actualCol);
+        boolean isLightSquare = (row + actualCol) % 2 != 0;
+
+        boolean isHighlight = false;
+        if (highlightPos != null && validMoves != null) {
+            if (currentPos.equals(highlightPos)) {
+                isHighlight = true; // Highlight the piece itself
+            } else {
+                for (ChessMove move : validMoves) {
+                    if (move.getEndPosition().equals(currentPos)) {
+                        isHighlight = true; // Highlight legal move destination
+                        break;
+                    }
+                }
+            }
+        }
+
+        setSquareColor(out, isLightSquare, isHighlight);
+
+        ChessPiece piece = board.getPiece(currentPos);
+        printPiece(out, piece, isLightSquare);
     }
 
     private void setSquareColor(PrintStream out, boolean isLight, boolean isHighlight) {
@@ -124,7 +129,8 @@ public class DrawBoard {
             out.print(EMPTY);
             return;
         }
-                // Determine color of piece text (Red/Blue per your requirements or standard White/Black)
+        // Determine color of piece text (Red/Blue per your requirements or standard
+        // White/Black)
         if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
             out.print(SET_TEXT_COLOR_RED);
         } else {
